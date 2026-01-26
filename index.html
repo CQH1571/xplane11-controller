@@ -3,156 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>XP11 Mobile Controller</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>XP11 PRO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
     <style>
-        body { background: #0f172a; touch-action: none; -webkit-user-select: none; }
-        .active-green { background-color: #22c55e !important; box-shadow: 0 0 15px #22c55e; }
-        .slider-v { -webkit-appearance: slider-vertical; width: 45px; height: 180px; background: #1e293b; }
-        /* 调整数值按钮样式，增加视觉区分 */
-        .adj-btn { position: relative; overflow: hidden; }
-        .adj-btn::after { content: ''; position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(255,255,255,0.1); }
+        body { background: #0f172a; color: white; font-family: sans-serif; margin: 0; padding: 0; touch-action: none; overflow: hidden; }
+        .header { padding: 50px 20px 20px; background: #1e293b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .status { font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #991b1b; color: #f87171; }
+        .status.on { background: #064e3b; color: #34d399; }
+        .mcp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; background: #0f172a; }
+        .btn { background: #334155; border: none; color: white; padding: 15px 0; border-radius: 8px; font-size: 10px; font-weight: bold; }
+        .btn:active { background: #475569; }
+        .val { font-family: monospace; color: #fb923c; font-size: 12px; text-align: center; margin-bottom: 5px; }
+        .control-area { display: flex; justify-content: space-around; align-items: center; height: 250px; }
+        #joy-zone { width: 180px; height: 180px; background: rgba(30, 41, 59, 0.5); border-radius: 50%; border: 2px solid #334155; position: relative; }
+        .thr-container { display: flex; flex-direction: column; align-items: center; }
+        input[type=range] { -webkit-appearance: slider-vertical; width: 40px; height: 180px; background: #1e293b; }
+        .footer { margin: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px; border: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+        .label { font-size: 9px; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+        .active-green { background-color: #16a34a !important; box-shadow: 0 0 10px #16a34a; }
     </style>
 </head>
-<body class="text-slate-200 font-sans">
-
-    <div class="pt-12 pb-4 px-6 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-        <h1 class="text-lg font-bold text-orange-500 tracking-tighter">XP11 PRO</h1>
-        <div id="status" class="text-[10px] px-2 py-1 rounded bg-red-900/50 text-red-400">未连接</div>
+<body>
+    <div class="header">
+        <span style="color:#fb923c; font-weight:bold;">XP11 REMOTE PRO</span>
+        <div id="status" class="status">未连接</div>
     </div>
 
-    <div class="grid grid-cols-4 gap-2 p-3 bg-slate-900 shadow-xl">
-        <div class="flex flex-col items-center">
-            <span id="label-ap" class="text-[9px] mb-1 text-slate-500 uppercase">AP OFF</span>
-            <button id="btn-ap" onclick="toggleAP()" class="w-full bg-slate-800 py-3 rounded text-[10px] font-bold active:bg-slate-700">MASTER</button>
-        </div>
-        <div class="flex flex-col items-center">
-            <span id="val-hdg" class="text-[10px] mb-1 text-orange-400 font-mono">000</span>
-            <button ontouchstart="startAdj(event, 'hdg', 1)" ontouchend="stopAdj()" class="adj-btn w-full bg-slate-800 py-3 rounded text-[10px]">HDG</button>
-        </div>
-        <div class="flex flex-col items-center">
-            <span id="val-alt" class="text-[10px] mb-1 text-orange-400 font-mono">05000</span>
-            <button ontouchstart="startAdj(event, 'alt', 100)" ontouchend="stopAdj()" class="adj-btn w-full bg-slate-800 py-3 rounded text-[10px]">ALT</button>
-        </div>
-        <div class="flex flex-col items-center">
-            <span id="val-spd" class="text-[10px] mb-1 text-orange-400 font-mono">250</span>
-            <button ontouchstart="startAdj(event, 'spd', 1)" ontouchend="stopAdj()" class="adj-btn w-full bg-slate-800 py-3 rounded text-[10px]">SPD</button>
+    <div class="mcp-grid">
+        <div><div class="val" id="lbl-ap">OFF</div><button id="btn-ap" class="btn" style="width:100%" onclick="toggleAP()">MASTER</button></div>
+        <div><div class="val" id="val-hdg">000</div><button class="btn" style="width:100%" ontouchstart="startAdj(event,'hdg',1)" ontouchend="stopAdj()">HDG</button></div>
+        <div><div class="val" id="val-alt">05000</div><button class="btn" style="width:100%" ontouchstart="startAdj(event,'alt',100)" ontouchend="stopAdj()">ALT</button></div>
+        <div><div class="val" id="val-spd">250</div><button class="btn" style="width:100%" ontouchstart="startAdj(event,'spd',1)" ontouchend="stopAdj()">SPD</button></div>
+    </div>
+
+    <div class="control-area">
+        <div id="joy-zone"></div>
+        <div class="thr-container">
+            <input type="range" min="0" max="1" step="0.01" value="0" oninput="send('THR', this.value)">
+            <div class="label" style="margin-top:10px">THROTTLE</div>
         </div>
     </div>
 
-    <div class="flex justify-around items-center h-64 mt-4">
-        <div class="flex flex-col items-center">
-            <div id="joy-zone" class="w-48 h-48 bg-slate-800/50 rounded-full border-2 border-slate-700 relative"></div>
-            <span class="text-[10px] mt-2 text-slate-500 font-bold">YOKE</span>
-        </div>
-        <div class="flex flex-col items-center">
-            <input type="range" class="slider-v" min="0" max="1" step="0.01" value="0" oninput="send('THR', this.value)">
-            <span class="text-[10px] mt-2 text-slate-500 font-bold">THROTTLE</span>
-        </div>
-    </div>
-
-    <div class="mx-4 mt-2 p-4 bg-black/40 rounded-2xl border border-slate-800 grid grid-cols-3 gap-4">
-        <div class="text-center">
-            <div class="text-[9px] text-slate-500 mb-1 uppercase">Gear</div>
-            <div class="flex justify-center gap-1">
-                <div class="w-2 h-4 bg-slate-700 rounded-sm"></div>
-                <div class="w-2 h-4 bg-slate-700 rounded-sm"></div>
-                <div class="w-2 h-4 bg-slate-700 rounded-sm"></div>
-            </div>
-        </div>
-        <div class="text-center border-x border-slate-800">
-            <div class="text-[9px] text-slate-500 mb-1 uppercase">Flaps</div>
-            <div class="text-xs text-green-500 font-mono">UP</div>
-        </div>
-        <div class="text-center">
-            <div class="text-[9px] text-slate-500 mb-1 uppercase">Trim</div>
-            <div class="h-4 w-full bg-slate-800 rounded relative overflow-hidden">
-                <div class="absolute left-1/2 w-1 h-full bg-orange-600"></div>
-            </div>
-        </div>
+    <div class="footer">
+        <div><div class="label">Gear</div><div id="gear-box" style="width:30px;height:15px;background:#334155;margin:auto;border-radius:2px;" onclick="toggleGear()"></div></div>
+        <div><div class="label">Flaps</div><div style="color:#22c55e;font-size:12px;font-family:monospace;">UP</div></div>
+        <div><div class="label">Trim</div><div style="height:4px;background:#334155;border-radius:2px;position:relative;"><div style="position:absolute;left:50%;width:2px;height:100%;background:#fb923c;"></div></div></div>
     </div>
 
     <script>
-        // 核心配置：已设为你的内网 IP
         const PC_IP = "192.168.1.11"; 
         const socket = new WebSocket(`ws://${PC_IP}:8080`);
-        
-        let state = { ap: false, hdg: 0, alt: 5000, spd: 250 };
-        let adjInterval = null;
+        let state = { ap: false, hdg: 0, alt: 5000, spd: 250, gear: true };
+        let adjInt = null;
 
         socket.onopen = () => {
-            const st = document.getElementById('status');
-            st.innerText = "已连接";
-            st.className = "text-[10px] px-2 py-1 rounded bg-green-900/50 text-green-400";
+            const s = document.getElementById('status');
+            s.innerText = "已连接"; s.className = "status on";
         };
 
-        function send(type, val) {
-            if(socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({type, val}));
-            }
-        }
-
-        // 数值调节逻辑：左减右加
-        function startAdj(e, type, step) {
-            const rect = e.target.getBoundingClientRect();
-            const touchX = e.touches[0].clientX - rect.left;
-            const isPlus = touchX > rect.width / 2; // 点击右半部分为加
-            const delta = isPlus ? step : -step;
-
-            const doAdjust = () => {
-                if(type === 'hdg') state.hdg = (state.hdg + (isPlus ? 1 : 359)) % 360;
-                if(type === 'alt') state.alt = Math.max(0, state.alt + delta);
-                if(type === 'spd') state.spd = Math.max(0, state.spd + delta);
-                
-                document.getElementById(`val-${type}`).innerText = 
-                    state[type].toString().padStart(type==='alt'?5:3, '0');
-                
-                send('SET_VALUE', {type, value: state[type]});
-                if(navigator.vibrate) navigator.vibrate(5);
-            };
-
-            doAdjust();
-            adjInterval = setInterval(doAdjust, 120);
-        }
-
-        function stopAdj() { clearInterval(adjInterval); }
+        function send(type, val) { if(socket.readyState === 1) socket.send(JSON.stringify({type, val})); }
 
         function toggleAP() {
             state.ap = !state.ap;
-            const btn = document.getElementById('btn-ap');
-            const label = document.getElementById('label-ap');
-            btn.classList.toggle('active-green');
-            label.innerText = state.ap ? "AP ENGAGED" : "AP OFF";
-            label.className = state.ap ? "text-[9px] mb-1 text-green-400 uppercase" : "text-[9px] mb-1 text-slate-500 uppercase";
+            document.getElementById('btn-ap').classList.toggle('active-green');
+            document.getElementById('lbl-ap').innerText = state.ap ? "ENGAGED" : "OFF";
             send('AP_MASTER', state.ap);
-            if(navigator.vibrate) navigator.vibrate(15);
         }
 
-        // 摇杆初始化（解决错位）
-        let manager;
-        function initJoystick() {
-            if(manager) manager.destroy();
-            manager = nipplejs.create({
-                zone: document.getElementById('joy-zone'),
-                mode: 'static',
-                position: {left: '50%', top: '50%'},
-                color: '#3b82f6'
-            });
-
-            manager.on('move', (e, d) => {
-                send('AXIS', { x: d.vector.x, y: d.vector.y });
-            });
-
-            manager.on('end', () => {
-                send('AXIS', { x: 0, y: 0 });
-            });
+        function toggleGear() {
+            state.gear = !state.gear;
+            document.getElementById('gear-box').style.backgroundColor = state.gear ? '#16a34a' : '#991b1b';
+            send('GEAR', state.gear ? 1 : 0);
         }
 
-        // 页面加载并延迟半秒初始化摇杆，确保获取正确尺寸
-        window.onload = () => {
-            setTimeout(initJoystick, 500);
-        };
+        function startAdj(e, type, step) {
+            const rect = e.target.getBoundingClientRect();
+            const isPlus = (e.touches[0].clientX - rect.left) > rect.width / 2;
+            const delta = isPlus ? step : -step;
+            const run = () => {
+                if(type === 'hdg') state.hdg = (state.hdg + (isPlus?1:359)) % 360;
+                else state[type] = Math.max(0, state[type] + delta);
+                document.getElementById('val-'+type).innerText = state[type].toString().padStart(type==='alt'?5:3,'0');
+                send('SET_VALUE', {type, value: state[type]});
+            };
+            run(); adjInt = setInterval(run, 120);
+        }
+        function stopAdj() { clearInterval(adjInt); }
+
+        let manager = nipplejs.create({ zone: document.getElementById('joy-zone'), mode: 'static', position: {left: '50%', top: '50%'}, color: 'white', size: 120 });
+        manager.on('move', (e, d) => send('AXIS', {x: d.vector.x, y: d.vector.y}));
+        manager.on('end', () => send('AXIS', {x: 0, y: 0}));
     </script>
 </body>
 </html>
